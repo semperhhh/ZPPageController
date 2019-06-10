@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DA2FD75022AE0159001B4F83 /* ZPPageContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2FD74F22AE0159001B4F83 /* ZPPageContainerView.swift */; };
 		DA34FB9422AA6DE0003BE9A5 /* ZPTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA34FB9322AA6DE0003BE9A5 /* ZPTestViewController.swift */; };
 		DA3EFB5622A95BF0000B453D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3EFB5522A95BF0000B453D /* AppDelegate.swift */; };
 		DA3EFB5822A95BF0000B453D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3EFB5722A95BF0000B453D /* ViewController.swift */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		DA2FD74F22AE0159001B4F83 /* ZPPageContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZPPageContainerView.swift; sourceTree = "<group>"; };
 		DA34FB9322AA6DE0003BE9A5 /* ZPTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZPTestViewController.swift; sourceTree = "<group>"; };
 		DA3EFB5222A95BF0000B453D /* pageController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pageController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA3EFB5522A95BF0000B453D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -39,6 +41,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DA2FD75122AE472C001B4F83 /* ZPPageViewController */ = {
+			isa = PBXGroup;
+			children = (
+				DA3EFB6722A961C7000B453D /* ZPPageViewController.swift */,
+				DA2FD74F22AE0159001B4F83 /* ZPPageContainerView.swift */,
+			);
+			path = ZPPageViewController;
+			sourceTree = "<group>";
+		};
 		DA3EFB4922A95BF0000B453D = {
 			isa = PBXGroup;
 			children = (
@@ -58,13 +69,13 @@
 		DA3EFB5422A95BF0000B453D /* pageController */ = {
 			isa = PBXGroup;
 			children = (
+				DA2FD75122AE472C001B4F83 /* ZPPageViewController */,
 				DA3EFB5522A95BF0000B453D /* AppDelegate.swift */,
 				DA3EFB5722A95BF0000B453D /* ViewController.swift */,
 				DA3EFB5922A95BF0000B453D /* Main.storyboard */,
 				DA3EFB5C22A95BF1000B453D /* Assets.xcassets */,
 				DA3EFB5E22A95BF1000B453D /* LaunchScreen.storyboard */,
 				DA3EFB6122A95BF1000B453D /* Info.plist */,
-				DA3EFB6722A961C7000B453D /* ZPPageViewController.swift */,
 				DA34FB9322AA6DE0003BE9A5 /* ZPTestViewController.swift */,
 			);
 			path = pageController;
@@ -141,6 +152,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA2FD75022AE0159001B4F83 /* ZPPageContainerView.swift in Sources */,
 				DA3EFB5822A95BF0000B453D /* ViewController.swift in Sources */,
 				DA3EFB5622A95BF0000B453D /* AppDelegate.swift in Sources */,
 				DA34FB9422AA6DE0003BE9A5 /* ZPTestViewController.swift in Sources */,

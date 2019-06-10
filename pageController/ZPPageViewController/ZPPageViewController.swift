@@ -35,7 +35,7 @@ class ZPPageViewController: UIViewController {
             let frame = CGRect(x: rect.size.width * CGFloat(i), y: 0, width: rect.size.width, height: rect.size.height)
             self.cacheFrame[i] = frame
         }
-        self.scrollView.backgroundColor = UIColor.green
+        self.scrollView.backgroundColor = UIColor.white
         self.scrollView.isPagingEnabled = true
         self.scrollView.delegate = self
         self.view.addSubview(self.scrollView)
@@ -86,12 +86,22 @@ class ZPPageViewController: UIViewController {
     }
     
     /// 指定展示的视图位置
-    public func pageChildControllerCurrentWithIndex(index: NSInteger) {
+    /// 不可覆盖
+    /// - Parameter index: 位置
+    final func pageChildControllerCurrentWithIndex(index: NSInteger) {
         
+        self.removeChildController(index: self.selectIndex)
+        
+        self.addViewControllerAtIndex(index: index)
+        
+        let rect = self.view.frame
+        self.scrollView.setContentOffset(CGPoint(x:rect.width * CGFloat(index), y: 0), animated: false)
+        
+        self.selectIndex = index
     }
     
     /// 移除上个控制器
-    internal func removeChildController(index: NSInteger) {
+    private func removeChildController(index: NSInteger) {
         
         let controller = self.cacheController[index]
         controller?.removeFromParent()
@@ -99,7 +109,7 @@ class ZPPageViewController: UIViewController {
     }
     
     /// 加载viewcontroller
-    internal func addViewControllerAtIndex(index: NSInteger) {
+    private func addViewControllerAtIndex(index: NSInteger) {
         
         //如果控制器大于总个数
         if index >= self.pageNumberOfChildController() {
@@ -113,6 +123,8 @@ class ZPPageViewController: UIViewController {
             subController = self.cacheController[index]
         }else {
             subController = self.pageChildControllerOfCurrent()
+            //添加到缓存
+            self.cacheController[index] = subController
         }
         
         let frame = self.cacheFrame[index]
@@ -120,9 +132,6 @@ class ZPPageViewController: UIViewController {
         self.addChild(subController) //添加到视图上
         subController.didMove(toParent: self) //移动
         self.scrollView.addSubview(subController.view)
-        
-        //添加到缓存
-        self.cacheController[index] = subController
     }
 }
 
