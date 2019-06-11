@@ -46,7 +46,7 @@ class ZPTestViewController: ZPPageViewController {
         return 5
     }
     
-    override func pageChildControllerOfCurrent() -> UIViewController {
+    override func pageChildControllerOfCurrent(index: NSInteger) -> UIViewController {
         
         let viewC = UIViewController()
         viewC.view.backgroundColor = UIColor.randomColor
