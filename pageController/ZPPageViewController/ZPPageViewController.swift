@@ -16,6 +16,12 @@ class ZPPageViewController: UIViewController {
     /// 当前选中索引
     var selectIndex: NSInteger = 0
     
+    /// 当前选中位置x
+    var selectOffsetx: CGFloat = 0
+    
+    /// 当前选中偏移位置
+    var selectPage:NSInteger = 0
+    
     /// frame缓存
     var cacheFrame = [NSInteger:CGRect]()
     
@@ -112,7 +118,7 @@ class ZPPageViewController: UIViewController {
     private func addViewControllerAtIndex(index: NSInteger) {
         
         //如果控制器大于总个数
-        if index >= self.pageNumberOfChildController() {
+        if index >= self.pageNumberOfChildController() || index < 0 {
             return
         }
         
@@ -127,6 +133,8 @@ class ZPPageViewController: UIViewController {
             self.cacheController[index] = subController
         }
         
+        print("flsfjlsfjlfsjfslfjls")
+        
         let frame = self.cacheFrame[index]
         subController.view.frame = frame!
         self.addChild(subController) //添加到视图上
@@ -139,25 +147,42 @@ extension ZPPageViewController : UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        let offsetX = scrollView.contentOffset.x;
+        let offsetX = scrollView.contentOffset.x
         
         self.pageChildControllerScrolling(scrollOffset: offsetX)
+        
+        var page:Float
+        if offsetX > self.selectOffsetx {
+            page = ceilf(Float(offsetX / scrollView.bounds.width))
+        }else {
+            page = floorf(Float(offsetX / scrollView.bounds.width))
+        }
+        
+        self.selectOffsetx = offsetX
+        
+        if self.selectPage != NSInteger(page) {
+
+            //添加子控制器
+            self.addViewControllerAtIndex(index: NSInteger(page))
+            self.selectPage = NSInteger(page)
+        }
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
-        let offsetX = scrollView.contentOffset.x;
+        let offsetX = scrollView.contentOffset.x
         
         let index = offsetX / scrollView.bounds.width
         
         self.pageChildControllerScrollEnd(index: NSInteger(index))
         
+        if self.selectIndex == NSInteger(index) {
+            return
+        }
+        
         //移除上个控制器
         self.removeChildController(index: self.selectIndex)
         
         self.selectIndex = NSInteger(index)
-        
-        //添加子控制器
-        self.addViewControllerAtIndex(index: self.selectIndex)
     }
 }
