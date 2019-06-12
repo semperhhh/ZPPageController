@@ -34,7 +34,7 @@ class ZPPageContainerView: UIView {
         
         if self.modality.isHaveLineContainer {
             self.lineView = UIView()
-            self.lineView.backgroundColor = UIColor.green
+            self.lineView.backgroundColor = self.modality.selectColor
             self.addSubview(self.lineView)
         }
         
@@ -109,6 +109,7 @@ class ZPPageContainerView: UIView {
         for label:UILabel in self.labelArray {
             if label.tag - 1000 == index {
                 self.selectLabel = label
+                self.selectLabel.textColor = self.modality.selectColor
             }
         }
     }
