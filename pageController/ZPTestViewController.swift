@@ -10,7 +10,15 @@ import UIKit
 
 class ZPTestViewController: ZPPageViewController {
     
-    var container : ZPPageContainerView!
+    var container : ZPHPageContainerView<ZPHPageBaseItem> = {
+        let v = ZPHPageContainerView()
+        v.backgroundColor = UIColor.randomColor
+        v.segmentItemList = [
+            ZPHPageContainerItem(),
+            ZPHPageContainerItem()
+        ]
+        return v
+    }()
     
     override func viewDidAppear(_ animated: Bool) {
         
@@ -29,16 +37,13 @@ class ZPTestViewController: ZPPageViewController {
 
         // Do any additional setup after loading the view.
         self.view.backgroundColor = UIColor.white
-        
-        let modality = ZPPageContainerModality()
-        modality.isHaveLineContainer = true
-        self.container = ZPPageContainerView(frame: CGRect(x: 0, y: 64, width: self.view.bounds.width, height: 44), titleArray: ["first", "second", "third", "fourth", "fifth"], modality: modality)
-        
-        self.container.topViewAction = { labelTag in
-            
-            self.pageChildControllerCurrentWithIndex(index: labelTag)
-        }
-        self.view.addSubview(self.container)
+
+        container.frame = CGRect(x: 0, y: 64, width: view.bounds.width, height: 64)
+        view.addSubview(self.container)
+
+//        self.container.topViewAction = { labelTag in
+//            self.pageChildControllerCurrentWithIndex(index: labelTag)
+//        }
     }
 
     override func pageNumberOfChildController() -> NSInteger {
@@ -60,12 +65,12 @@ class ZPTestViewController: ZPPageViewController {
     
     override func pageChildControllerScrollEnd(index: NSInteger) {
         
-        self.container.modalitySelect(index: index)
+//        self.container.modalitySelect(index: index)
     }
     
     override func pageChildControllerScrolling(scrollOffset: CGFloat) {
         
-        self.container.modalityScroll(offset: scrollOffset)
+//        self.container.modalityScroll(offset: scrollOffset)
     }
     
 }
