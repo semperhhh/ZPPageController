@@ -8,14 +8,19 @@
 
 import UIKit
 
-class ZPTestViewController: ZPPageViewController {
+class ZPTestViewController: ZPPageViewController, ZPHPageContainerViewDelegate {
+    
+    func pageContainerItemsWidth(_ index: Int) -> [CGFloat] {
+        return [200]
+    }
     
     var container : ZPHPageContainerView<ZPHPageBaseItem> = {
         let v = ZPHPageContainerView()
-        v.backgroundColor = UIColor.randomColor
+        v.lineColor = UIColor.blue
+        v.itemWidth = 88
         v.segmentItemList = [
-            ZPHPageContainerItem(),
-            ZPHPageContainerItem()
+            ZPHPageContainerItem("item1"),
+            ZPHPageContainerItem("item2")
         ]
         return v
     }()
@@ -38,7 +43,8 @@ class ZPTestViewController: ZPPageViewController {
         // Do any additional setup after loading the view.
         self.view.backgroundColor = UIColor.white
 
-        container.frame = CGRect(x: 0, y: 64, width: view.bounds.width, height: 64)
+        container.frame = CGRect(x: 0, y: 64, width: view.bounds.width, height: 44)
+        container.pageContainerDelegate = self
         view.addSubview(self.container)
 
 //        self.container.topViewAction = { labelTag in
@@ -86,4 +92,30 @@ extension UIColor {
             return UIColor(red: red, green: green, blue: blue, alpha: 1.0)
         }
     }
+}
+
+class ZPHPageContainerItem: ZPHPageBaseItem {
+    
+    let nameLabel: UILabel = {
+        let lab = UILabel()
+        lab.textAlignment = .center
+        lab.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        lab.backgroundColor = UIColor.randomColor
+        return lab
+    }()
+    
+    init(_ title: String = "item") {
+        super.init(frame: CGRect.zero)
+        addSubview(nameLabel)
+        nameLabel.text = title
+    }
+    
+    override func layoutSubviews() {
+        nameLabel.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.height)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
 }

@@ -14,7 +14,7 @@ enum ZPHPageContainerStatus {
 }
 
 /// protocol, have status
-protocol ZPHPageContainerProtocol {
+fileprivate protocol ZPHPageContainerProtocol {
     var containerStatus: ZPHPageContainerStatus { get set }
 }
 
@@ -23,27 +23,24 @@ class ZPHPageBaseItem: UIView, ZPHPageContainerProtocol {
     var containerStatus: ZPHPageContainerStatus = .normal
 }
 
-class ZPHPageContainerItem: ZPHPageBaseItem {
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        backgroundColor = UIColor.randomColor
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
+@objc protocol ZPHPageContainerViewDelegate {
+    @objc optional func pageContainerItemsWidth(_ index: Int) -> [CGFloat]
 }
 
 class ZPHPageContainerView<T: ZPHPageBaseItem>: UIView {
-
+    
+    var pageContainerDelegate: ZPHPageContainerViewDelegate?
+    
     /// item宽
     var itemWidth: CGFloat = 64
     /// 线宽
     var lineWidth: CGFloat = 40
     /// 线高
-    var lineHeight: CGFloat = 3
+    var lineHeight: CGFloat = 3 {
+        didSet {
+            lineView.layer.cornerRadius = lineHeight / 2
+        }
+    }
     /// 线的颜色
     var lineColor: UIColor = #colorLiteral(red: 0.1174837574, green: 0.6798678637, blue: 0.456895709, alpha: 1) {
         didSet {
@@ -57,6 +54,20 @@ class ZPHPageContainerView<T: ZPHPageBaseItem>: UIView {
         }
     }
 
+    /// 下划线
+    private lazy var lineView: UIView = {
+        let v = UIView()
+        v.backgroundColor = lineColor
+        v.layer.cornerRadius = lineHeight / 2
+        return v
+    }()
+
+    /// 当前选中的item
+    private var currentItem: T?
+
+    /// 点击回调
+    private var topViewAction: ((NSInteger) -> Void)?
+
     /// 数组
     var segmentItemList: [T] = [] {
         didSet {
@@ -68,12 +79,17 @@ class ZPHPageContainerView<T: ZPHPageBaseItem>: UIView {
                 item.tag = i
                 let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapAction(_:)))
                 item.addGestureRecognizer(tap)
-                self.addSubview(item)
+                addSubview(item)
+                if i == 0 {
+                    item.containerStatus = .select
+                }
             }
+            
+            addSubview(lineView)
         }
     }
 
-    @objc func tapAction(_ tap: UIGestureRecognizer) {
+    @objc private func tapAction(_ tap: UIGestureRecognizer) {
 
         guard let view: T = tap.view as? T else {
             return
@@ -86,58 +102,53 @@ class ZPHPageContainerView<T: ZPHPageBaseItem>: UIView {
         view.containerStatus = .select
         currentItem = view
         UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
-            self.lineView.frame = CGRect(x: ((self.itemWidth - self.lineWidth) / 2) + (self.itemWidth * CGFloat(view.tag)),
+            self.lineView.frame = CGRect(x: ((view.bounds.width - self.lineWidth) / 2) + view.frame.origin.x,
                                      y: self.bounds.height - self.lineHeight,
                                      width: self.lineWidth,
                                      height: self.lineHeight)
         }
-        topViewAction(view.tag)
+        topViewAction?(view.tag)
     }
-
+    
     override func layoutSubviews() {
 
         print("layoutSubviews")
-
+        
         var start: CGFloat = 0
-        for item in segmentItemList {
-            item.frame = CGRect(x: start, y: 0, width: itemWidth, height: self.bounds.height)
+        for (i, item) in segmentItemList.enumerated() {
+            
+            let itemW: CGFloat!
+            if let list = pageContainerDelegate?.pageContainerItemsWidth?(i) {
+                if list.count > i {
+                    itemW = list[i]
+                } else {
+                    itemW = itemWidth
+                }
+            } else {
+                itemW = itemWidth
+            }
+//            let itemW: CGFloat = pageContainerDelegate?.pageContainerItemsWidth?(i)[i] ?? itemWidth
+            item.frame = CGRect(x: start,
+                                y: 0,
+                                width: itemW,
+                                height: self.bounds.height)
             if item.containerStatus == .select {
                 currentItem = item
-                lineView.frame = CGRect(x: (itemWidth - lineWidth) / 2 + start,
+                lineView.frame = CGRect(x: (itemW - lineWidth) / 2 + start,
                                     y: self.bounds.height - lineHeight,
                                     width: lineWidth,
                                     height: lineHeight)
             }
-            start += itemWidth
+            start += itemW
         }
     }
-
-    /// 样式
-    var modality: ZPPageContainerModality!
-
-    /// 下划线
-    lazy var lineView: UIView = {
-        let v = UIView()
-        v.backgroundColor = UIColor.randomColor
-        return v
-    }()
-
-    /// 当前选中的item
-    var currentItem: T?
-
-    /// 点击回调
-    var topViewAction: ((NSInteger) -> Void)!
-
 }
 
-class ZPPageContainerModality: NSObject {
+struct ZPHPageContainerModality {
 
-    /// 未选中的颜色,默认灰色
-    var normalColor: UIColor = UIColor.gray
-    /// 选中的颜色,默认绿色
-    var selectColor: UIColor = UIColor.green
+    var itemWidth: CGFloat = 64
     /// 线条选择器尺寸,默认 40 2
-    var lineContainerSize: CGSize?
+    var lineContainerSize: CGSize = CGSize(width: 40, height: 3)
     /// 是否展示线条选择器,默认false
     var isHaveLineContainer: Bool = false
 }
