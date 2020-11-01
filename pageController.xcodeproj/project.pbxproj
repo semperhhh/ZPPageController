@@ -14,7 +14,7 @@
 		DA3EFB5B22A95BF0000B453D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DA3EFB5922A95BF0000B453D /* Main.storyboard */; };
 		DA3EFB5D22A95BF1000B453D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DA3EFB5C22A95BF1000B453D /* Assets.xcassets */; };
 		DA3EFB6022A95BF1000B453D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DA3EFB5E22A95BF1000B453D /* LaunchScreen.storyboard */; };
-		DA3EFB6822A961C7000B453D /* ZPPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3EFB6722A961C7000B453D /* ZPPageViewController.swift */; };
+		DA3EFB6822A961C7000B453D /* ZPHPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3EFB6722A961C7000B453D /* ZPHPageViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +27,7 @@
 		DA3EFB5C22A95BF1000B453D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DA3EFB5F22A95BF1000B453D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DA3EFB6122A95BF1000B453D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DA3EFB6722A961C7000B453D /* ZPPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZPPageViewController.swift; sourceTree = "<group>"; };
+		DA3EFB6722A961C7000B453D /* ZPHPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZPHPageViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,7 +44,7 @@
 		DA2FD75122AE472C001B4F83 /* ZPPageViewController */ = {
 			isa = PBXGroup;
 			children = (
-				DA3EFB6722A961C7000B453D /* ZPPageViewController.swift */,
+				DA3EFB6722A961C7000B453D /* ZPHPageViewController.swift */,
 				DA2FD74F22AE0159001B4F83 /* ZPHPageContainerView.swift */,
 			);
 			path = ZPPageViewController;
@@ -156,7 +156,7 @@
 				DA3EFB5822A95BF0000B453D /* ViewController.swift in Sources */,
 				DA3EFB5622A95BF0000B453D /* AppDelegate.swift in Sources */,
 				DA34FB9422AA6DE0003BE9A5 /* ZPTestViewController.swift in Sources */,
-				DA3EFB6822A961C7000B453D /* ZPPageViewController.swift in Sources */,
+				DA3EFB6822A961C7000B453D /* ZPHPageViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

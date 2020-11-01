@@ -24,7 +24,12 @@ class ZPHPageBaseItem: UIView, ZPHPageContainerProtocol {
 }
 
 @objc protocol ZPHPageContainerViewDelegate {
-    @objc optional func pageContainerItemsWidth(_ index: Int) -> [CGFloat]
+    /// 分页的item的宽
+    /// - Parameter index: index
+    @objc optional func pageContainerItemsWidth(_ index: Int) -> CGFloat
+    /// 分页点击
+    /// - Parameter index: index
+    func pageContainerItemAction(_ index: Int)
 }
 
 class ZPHPageContainerView<T: ZPHPageBaseItem>: UIView {
@@ -63,10 +68,20 @@ class ZPHPageContainerView<T: ZPHPageBaseItem>: UIView {
     }()
 
     /// 当前选中的item
-    private var currentItem: T?
-
-    /// 点击回调
-    private var topViewAction: ((NSInteger) -> Void)?
+    private var currentItem: T? {
+        didSet {
+            oldValue?.containerStatus = .normal
+            currentItem!.containerStatus = .select
+            if oldValue != nil {
+                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseInOut) {
+                    self.lineView.frame = CGRect(x: ((self.currentItem!.bounds.width - self.lineWidth) / 2) + self.currentItem!.frame.origin.x,
+                                                 y: self.bounds.height - self.lineHeight,
+                                                 width: self.lineWidth,
+                                                 height: self.lineHeight)
+                }
+            }
+        }
+    }
 
     /// 数组
     var segmentItemList: [T] = [] {
@@ -81,7 +96,7 @@ class ZPHPageContainerView<T: ZPHPageBaseItem>: UIView {
                 item.addGestureRecognizer(tap)
                 addSubview(item)
                 if i == 0 {
-                    item.containerStatus = .select
+                    currentItem = item
                 }
             }
             
@@ -94,50 +109,36 @@ class ZPHPageContainerView<T: ZPHPageBaseItem>: UIView {
         guard let view: T = tap.view as? T else {
             return
         }
-
         guard view != currentItem else {// 重复点击无效
             return
         }
-        currentItem?.containerStatus = .normal
-        view.containerStatus = .select
         currentItem = view
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
-            self.lineView.frame = CGRect(x: ((view.bounds.width - self.lineWidth) / 2) + view.frame.origin.x,
-                                     y: self.bounds.height - self.lineHeight,
-                                     width: self.lineWidth,
-                                     height: self.lineHeight)
+        pageContainerDelegate?.pageContainerItemAction(view.tag)
+    }
+
+    /// 选择item
+    /// - Parameter index: 位置
+    func pageSelectItem(_ index: Int) {
+        guard index < segmentItemList.count else {
+            return
         }
-        topViewAction?(view.tag)
+        currentItem = segmentItemList[index]
     }
     
     override func layoutSubviews() {
-
-        print("layoutSubviews")
         
         var start: CGFloat = 0
         for (i, item) in segmentItemList.enumerated() {
-            
-            let itemW: CGFloat!
-            if let list = pageContainerDelegate?.pageContainerItemsWidth?(i) {
-                if list.count > i {
-                    itemW = list[i]
-                } else {
-                    itemW = itemWidth
-                }
-            } else {
-                itemW = itemWidth
-            }
-//            let itemW: CGFloat = pageContainerDelegate?.pageContainerItemsWidth?(i)[i] ?? itemWidth
+            let itemW: CGFloat = pageContainerDelegate?.pageContainerItemsWidth?(i) ?? itemWidth
             item.frame = CGRect(x: start,
                                 y: 0,
                                 width: itemW,
                                 height: self.bounds.height)
-            if item.containerStatus == .select {
-                currentItem = item
-                lineView.frame = CGRect(x: (itemW - lineWidth) / 2 + start,
-                                    y: self.bounds.height - lineHeight,
-                                    width: lineWidth,
-                                    height: lineHeight)
+            if i == 0 {
+                lineView.frame = CGRect(x: (itemW - lineWidth) / 2,
+                                        y: self.bounds.height - lineHeight,
+                                        width: lineWidth,
+                                        height: lineHeight)
             }
             start += itemW
         }

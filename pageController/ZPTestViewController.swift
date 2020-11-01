@@ -8,20 +8,57 @@
 
 import UIKit
 
-class ZPTestViewController: ZPPageViewController, ZPHPageContainerViewDelegate {
-    
-    func pageContainerItemsWidth(_ index: Int) -> [CGFloat] {
-        return [200]
+class ZPTestViewController: UIViewController, ZPHPageContainerViewDelegate, ZPHPageContentViewDelegate {
+    func pageNumberOfChildController() -> NSInteger {
+        2
+    }
+
+    func pageChildControllerOfRect() -> CGRect {
+        CGRect(x: 0, y: 0, width: self.view.bounds.width, height: 400)
+    }
+
+    func pageChildControllerOfCurrent(index: NSInteger) -> UIViewController {
+        let vc = UIViewController()
+        vc.view.backgroundColor = .randomColor
+        return vc
+    }
+
+    func pageChildControllerScrollEnd(index: NSInteger) {
+        container.pageSelectItem(index)
+    }
+
+    func pageChildControllerScrolling(scrollOffset: CGFloat) {
+
+    }
+
+    // MARK: container
+    func pageContainerItemAction(_ index: Int) {
+        contentViewController.pageChildControllerCurrentWithIndex(index: index)
+    }
+
+    func pageContainerItemsWidth(_ index: Int) -> CGFloat {
+        if index == 0 {
+            return 100
+        } else {
+            return 200
+        }
     }
     
-    var container : ZPHPageContainerView<ZPHPageBaseItem> = {
-        let v = ZPHPageContainerView()
+    var container : ZPHPageContainerView<ZPHPageContainerItem> = {
+        let v = ZPHPageContainerView<ZPHPageContainerItem>()
         v.lineColor = UIColor.blue
         v.itemWidth = 88
         v.segmentItemList = [
             ZPHPageContainerItem("item1"),
-            ZPHPageContainerItem("item2")
+            ZPHPageContainerItem("item2"),
+            ZPHPageContainerItem("item3")
         ]
+        return v
+    }()
+
+    lazy var contentViewController: ZPHPageViewController = {
+        let v = ZPHPageViewController()
+        v.pageContentViewDelegate = self
         return v
     }()
     
@@ -47,38 +84,12 @@ class ZPTestViewController: ZPPageViewController, ZPHPageContainerViewDelegate {
         container.pageContainerDelegate = self
         view.addSubview(self.container)
 
-//        self.container.topViewAction = { labelTag in
-//            self.pageChildControllerCurrentWithIndex(index: labelTag)
-//        }
+        contentViewController.view.frame = CGRect(x: 0, y: 64 + 44, width: view.bounds.width, height: 600)
+        contentViewController.view.backgroundColor = .randomColor
+        addChild(contentViewController)
+        contentViewController.didMove(toParent: self)
+        view.addSubview(contentViewController.view)
     }
-
-    override func pageNumberOfChildController() -> NSInteger {
-
-        return 5
-    }
-    
-    override func pageChildControllerOfCurrent(index: NSInteger) -> UIViewController {
-        
-        let viewC = UIViewController()
-        viewC.view.backgroundColor = UIColor.randomColor
-        return viewC
-    }
-    
-    override func pageChildControllerOfRect() -> CGRect {
-
-        return CGRect(x: 0, y: 64 + 44, width: self.view.bounds.width, height: self.view.bounds.height - 64 - 44)
-    }
-    
-    override func pageChildControllerScrollEnd(index: NSInteger) {
-        
-//        self.container.modalitySelect(index: index)
-    }
-    
-    override func pageChildControllerScrolling(scrollOffset: CGFloat) {
-        
-//        self.container.modalityScroll(offset: scrollOffset)
-    }
-    
 }
 
 //随机颜色
@@ -95,6 +106,17 @@ extension UIColor {
 }
 
 class ZPHPageContainerItem: ZPHPageBaseItem {
+
+    override var containerStatus: ZPHPageContainerStatus {
+        didSet {
+            if containerStatus == .select {
+                nameLabel.textColor = .red
+            }
+            if containerStatus == .normal {
+                nameLabel.textColor = .black
+            }
+        }
+    }
     
     let nameLabel: UILabel = {
         let lab = UILabel()

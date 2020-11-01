@@ -8,96 +8,87 @@
 
 import UIKit
 
-class ZPPageViewController: UIViewController {
+protocol ZPHPageContentViewDelegate {
+
+    /// 子控制器数量
+    func pageNumberOfChildController() -> NSInteger
+
+    /// 子控制器大小
+    func pageChildControllerOfRect() -> CGRect
+
+    /// 对应的控制器
+    /// - Parameter index: 索引
+    func pageChildControllerOfCurrent(index: NSInteger) -> UIViewController
+
+    /// 滚动停止的位置
+    /// - Parameter index: 索引
+    func pageChildControllerScrollEnd(index: NSInteger)
+
+    /// 滚动中的偏移
+    func pageChildControllerScrolling(scrollOffset: CGFloat)
+}
+
+class ZPHPageViewController: UIViewController {
+
+    var pageContentViewDelegate: ZPHPageContentViewDelegate?
 
     /// 滚动
-    var scrollView = UIScrollView()
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.backgroundColor = UIColor.white
+        scrollView.isPagingEnabled = true
+        scrollView.bounces = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.delegate = self
+        return scrollView
+    }()
 
     /// 当前选中索引
     var selectIndex: NSInteger = 0
 
     /// 当前选中位置x
-    var selectOffsetx: CGFloat = 0
+    private var selectOffsetx: CGFloat = 0
 
     /// 当前选中偏移位置
-    var selectPage: NSInteger = 0
+    private var selectPage: NSInteger = 0
 
     /// frame缓存
-    var cacheFrame = [NSInteger: CGRect]()
+    private var cacheFrame = [NSInteger: CGRect]()
 
     /// 控制器缓存
-    var cacheController = [NSInteger: UIViewController]()
+    private var cacheController = [NSInteger: UIViewController]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         // 子控制器个数
-        let numb = self.pageNumberOfChildController()
-        let rect = self.pageChildControllerOfRect()
-        self.scrollView = UIScrollView(frame: CGRect(x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height))
+        let numb = pageContentViewDelegate?.pageNumberOfChildController() ?? 0
+        let rect = pageContentViewDelegate?.pageChildControllerOfRect() ?? CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
 
+        scrollView.frame = CGRect(x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height)
+        view.addSubview(self.scrollView)
         for i in 0..<numb {
             let frame = CGRect(x: rect.size.width * CGFloat(i), y: 0, width: rect.size.width, height: rect.size.height)
             self.cacheFrame[i] = frame
         }
-        self.scrollView.backgroundColor = UIColor.white
-        self.scrollView.isPagingEnabled = true
-        self.scrollView.delegate = self
-        self.view.addSubview(self.scrollView)
 
-        let wid = self.view.bounds.width * CGFloat(self.pageNumberOfChildController())
-        self.scrollView.contentSize = CGSize(width: wid, height: rect.size.height)
+        let wid = self.view.bounds.width * CGFloat(numb)
+        scrollView.contentSize = CGSize(width: wid, height: rect.size.height)
 
         // 加载控制器
         self.addViewControllerAtIndex(index: self.selectIndex)
-    }
-
-    /// 有几个子控制器
-    /// **子类必须实现
-    /// - Returns: 子控制器个数
-    public func pageNumberOfChildController() -> NSInteger {
-
-        assert(false, "cannot pageNumberOfChildController")
-        return 0
-    }
-
-    /// 对应的每个控制器
-    /// ** 子类必须实现
-    /// - Returns: 当前子控制器
-    public func pageChildControllerOfCurrent(index: NSInteger) -> UIViewController {
-
-        assert(false, "cannot pageChildControllerOfCurrent")
-        return UIViewController()
-    }
-
-    /// 控件的尺寸
-    /// ** 子类必须实现
-    /// - Returns: 尺寸
-    public func pageChildControllerOfRect() -> CGRect {
-
-        assert(false, "cannot pageChildControllerOfRect")
-        return CGRect.zero
-    }
-
-    /// 滚动停止时的选择
-    ///
-    /// - Returns: 选择的位置
-    public func pageChildControllerScrollEnd(index: NSInteger) {
-        // 子类需要可以覆盖
-    }
-
-    /// 滚动中的偏移
-    ///
-    /// - Parameter scrollOffset: 偏移的位置
-    public func pageChildControllerScrolling(scrollOffset: CGFloat) {
-        // 子类需要可以覆盖
     }
 
     /// 指定展示的视图位置
     /// 不可覆盖
     /// - Parameter index: 位置
     final func pageChildControllerCurrentWithIndex(index: NSInteger) {
+
+        guard index < pageContentViewDelegate?.pageNumberOfChildController() ?? 0 else {
+            return
+        }
 
         self.removeChildController(index: self.selectIndex)
 
@@ -120,7 +111,7 @@ class ZPPageViewController: UIViewController {
     private func addViewControllerAtIndex(index: NSInteger) {
 
         // 如果控制器大于总个数
-        if index >= self.pageNumberOfChildController() || index < 0 {
+        if index >= pageContentViewDelegate?.pageNumberOfChildController() ?? 0 || index < 0 {
             return
         }
 
@@ -130,7 +121,7 @@ class ZPPageViewController: UIViewController {
         if self.cacheController[index] != nil {
             subController = self.cacheController[index]
         } else {
-            subController = self.pageChildControllerOfCurrent(index: index)
+            subController = pageContentViewDelegate?.pageChildControllerOfCurrent(index: index) ?? UIViewController()
             // 添加到缓存
             self.cacheController[index] = subController
         }
@@ -145,13 +136,13 @@ class ZPPageViewController: UIViewController {
     }
 }
 
-extension ZPPageViewController: UIScrollViewDelegate {
+extension ZPHPageViewController: UIScrollViewDelegate {
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
 
         let offsetX = scrollView.contentOffset.x
 
-        self.pageChildControllerScrolling(scrollOffset: offsetX)
+        pageContentViewDelegate?.pageChildControllerScrolling(scrollOffset: offsetX)
 
         var page: Float
         if offsetX > self.selectOffsetx {
@@ -173,10 +164,9 @@ extension ZPPageViewController: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 
         let offsetX = scrollView.contentOffset.x
-
         let index = offsetX / scrollView.bounds.width
 
-        self.pageChildControllerScrollEnd(index: NSInteger(index))
+        pageContentViewDelegate?.pageChildControllerScrollEnd(index: NSInteger(index))
 
         if self.selectIndex == NSInteger(index) {
             return
@@ -184,7 +174,6 @@ extension ZPPageViewController: UIScrollViewDelegate {
 
         // 移除上个控制器
         self.removeChildController(index: self.selectIndex)
-
         self.selectIndex = NSInteger(index)
     }
 }
